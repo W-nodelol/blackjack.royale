@@ -564,7 +564,7 @@
             const questions = triviaQuestions[selectedPreGameTopic];
             const trivia = questions.find(t => t.question === document.getElementById("pregame-trivia-question").innerText);
             if (choice === trivia.answer) {
-                bankroll += 20;
+                bankroll += 100;
                 preGameTriviaAttempts++;
                 if (preGameTriviaAttempts < 3) {
                     showMessage(`Correct! Your bankroll is now $${bankroll}.`, true);
