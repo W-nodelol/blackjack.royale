@@ -1,0 +1,539 @@
+<script>
+    let bankroll = 100;
+    let dealerBankroll = 100;
+    let playerHand = [];
+    let splitHand = [];
+    let dealerHand = [];
+    let currentBet = 0;
+    let splitBet = 0;
+    let gameInProgress = false;
+    let isSplit = false;
+    let currentTrivia = null;
+    let canDouble = false;
+    let canSplit = false;
+    let firstRoundStarted = false;
+    let preGameTriviaAttempts = 0;
+    let selectedPreGameTopic = null;
+    let selectedTriviaTopic = null;
+    let currentTableLevel = 1;
+    let maxBet = 1000;
+    let unlockedTables = [1]; // Level 1 is unlocked by default
+    let askedQuestions = {
+        "History": [],
+        "Geography": [],
+        "Science": [],
+        "Pop Culture": [],
+        "Sports": [],
+        "Entertainment": [],
+        "General Knowledge": []
+    };
+
+    const suits = ['♥', '♦', '♠', '♣'];
+    const triviaQuestions = {
+        "History": [
+            {question: "In what year did the Berlin Wall fall?", options: ["1985", "1987", "1989", "1991"], answer: 2},
+            {question: "Who was the first woman to win a Nobel Prize?", options: ["Marie Curie", "Jane Addams", "Pearl Buck", "Selma Lagerlöf"], answer: 0},
+            {question: "In which year were the first modern Olympic Games held?", options: ["1896", "1900", "1888", "1912"], answer: 0},
+            {question: "Who was the first person to reach the South Pole?", options: ["Roald Amundsen", "Robert Scott", "Ernest Shackleton", "Edmund Hillary"], answer: 0},
+            {question: "Which American president appears on a one-dollar bill?", options: ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "Andrew Jackson"], answer: 1},
+            {question: "What year did Serena Williams win her first Grand Slam singles title?", options: ["1997", "1999", "2001", "2003"], answer: 1},
+            {question: "Which queen had the shortest reign of King Henry VIII's wives?", options: ["Catherine of Aragon", "Anne Boleyn", "Jane Seymour", "Anne of Cleves"], answer: 3},
+            {question: "Before becoming President, Barack Obama served as a U.S. Senator from which state?", options: ["Hawaii", "Illinois", "California", "New York"], answer: 1},
+            {question: "In what year did the Titanic sink?", options: ["1910", "1912", "1914", "1916"], answer: 1},
+            {question: "Who was the first female self-made millionaire in the U.S.?", options: ["Oprah Winfrey", "Madam C.J. Walker", "Estée Lauder", "Coco Chanel"], answer: 1}
+        ],
+        "Geography": [
+            {question: "What is the capital city of Brazil?", options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"], answer: 2},
+            {question: "What is the largest island in the world?", options: ["Australia", "Greenland", "Borneo", "Madagascar"], answer: 1},
+            {question: "What is the northernmost capital city in the world?", options: ["Oslo", "Helsinki", "Reykjavik", "Stockholm"], answer: 2},
+            {question: "What is the longest river in Asia?", options: ["Yangtze", "Yellow River", "Mekong", "Ganges"], answer: 0},
+            {question: "What is the smallest country in the world by area?", options: ["Monaco", "Vatican City", "Liechtenstein", "San Marino"], answer: 1},
+            {question: "What is the capital city of Mongolia?", options: ["Ulaanbaatar", "Astana", "Tashkent", "Bishkek"], answer: 0},
+            {question: "Which African country was formerly known as Abyssinia?", options: ["Kenya", "Ethiopia", "Sudan", "Uganda"], answer: 1},
+            {question: "What desert covers much of northern Africa?", options: ["Kalahari", "Sahara", "Gobi", "Atacama"], answer: 1},
+            {question: "Which country has a flag that is not a quadrilateral?", options: ["Nepal", "Bhutan", "Sri Lanka", "Bangladesh"], answer: 0},
+            {question: "In which European city would you find Orly airport?", options: ["London", "Paris", "Madrid", "Rome"], answer: 1}
+        ],
+        "Science": [
+            {question: "What is the chemical symbol for silver?", options: ["Au", "Ag", "Si", "Sr"], answer: 1},
+            {question: "What is the largest bone in the human body?", options: ["Skull", "Femur", "Tibia", "Humerus"], answer: 1},
+            {question: "What is the hardest natural substance on Earth?", options: ["Diamond", "Quartz", "Topaz", "Ruby"], answer: 0},
+            {question: "What is the rarest blood type among humans?", options: ["O-positive", "AB-negative", "A-positive", "B-negative"], answer: 1},
+            {question: "What is the only planet that rotates on its side?", options: ["Venus", "Uranus", "Neptune", "Saturn"], answer: 1},
+            {question: "Who is known as the 'Father of Modern Physics'?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Niels Bohr"], answer: 1},
+            {question: "What animal is known to regenerate lost limbs?", options: ["Snake", "Crab", "Starfish", "Frog"], answer: 2},
+            {question: "What is the name for a type of sandstorm with strong winds and low visibility?", options: ["Haboob", "Sirocco", "Monsoon", "Tornado"], answer: 0},
+            {question: "How many senses do humans have?", options: ["Four", "Five", "Six", "Seven"], answer: 1},
+            {question: "What animal's milk is pink?", options: ["Cow", "Hippopotamus", "Goat", "Elephant"], answer: 1}
+        ],
+        "Pop Culture": [
+            {question: "What cartoon character lives in a pineapple under the sea?", options: ["Mickey Mouse", "SpongeBob SquarePants", "Donald Duck", "Bugs Bunny"], answer: 1},
+            {question: "What ABBA song was a No. 1 hit in 1977?", options: ["Mamma Mia", "Dancing Queen", "Waterloo", "Fernando"], answer: 1},
+            {question: "What is the rarest M&M color?", options: ["Red", "Blue", "Brown", "Green"], answer: 2},
+            {question: "Which actor was in the Mickey Mouse Club with Britney Spears?", options: ["Ryan Gosling", "Zac Efron", "Shia LaBeouf", "Macaulay Culkin"], answer: 0},
+            {question: "What viral video featured the song 'Dragostea Din Tei'?", options: ["Numa Numa", "Charlie Bit My Finger", "Gangnam Style", "Evolution of Dance"], answer: 0},
+            {question: "What is the highest-grossing film of all time (without inflation)?", options: ["Titanic", "Avatar", "Avengers: Endgame", "Star Wars: The Force Awakens"], answer: 1},
+            {question: "Who anonymously sends Harry his father’s Invisibility Cloak?", options: ["Snape", "Dumbledore", "Hagrid", "McGonagall"], answer: 1},
+            {question: "What does 'www' stand for in a website browser?", options: ["World Wide Web", "Web World Wide", "Wide Web World", "World Web Wide"], answer: 0},
+            {question: "At the 2015 Met Gala, how long was Rihanna's yellow cape train?", options: ["5 feet", "10 feet", "15 feet", "20 feet"], answer: 2},
+            {question: "What is the name of Sherlock Holmes' assistant?", options: ["Watson", "Hudson", "Lestrade", "Moriarty"], answer: 0}
+        ],
+        "Sports": [
+            {question: "Which two countries have not missed a modern-day Olympics?", options: ["USA and Canada", "Greece and Australia", "France and Germany", "Japan and China"], answer: 1},
+            {question: "Which NFL team went a whole season undefeated, including the Super Bowl?", options: ["Miami Dolphins", "New England Patriots", "Pittsburgh Steelers", "Dallas Cowboys"], answer: 0},
+            {question: "Tennis star Serena Williams won which major while pregnant?", options: ["Wimbledon", "US Open", "French Open", "Australian Open"], answer: 3},
+            {question: "How often are the Olympics held?", options: ["Every two years", "Every four years", "Every six years", "Every year"], answer: 1},
+            {question: "Which country drinks the most coffee per person?", options: ["Finland", "Italy", "Colombia", "Brazil"], answer: 0},
+            {question: "What is the only American Football penalty that results in a 15-yard loss?", options: ["Holding", "Pass Interference", "Unsportsmanlike Conduct", "False Start"], answer: 2},
+            {question: "Which country hosts the most Formula 1 races in a season?", options: ["Italy", "Monaco", "USA", "UK"], answer: 0},
+            {question: "Who holds the record for the most home runs in MLB history?", options: ["Babe Ruth", "Hank Aaron", "Barry Bonds", "Alex Rodriguez"], answer: 2},
+            {question: "In what year did the first Super Bowl take place?", options: ["1960", "1967", "1970", "1975"], answer: 1},
+            {question: "Which sport is known as 'the beautiful game'?", options: ["Basketball", "Soccer", "Tennis", "Rugby"], answer: 1}
+        ],
+        "Entertainment": [
+            {question: "What was the first toy advertised on television?", options: ["Mr. Potato Head", "Barbie", "Slinky", "GI Joe"], answer: 0},
+            {question: "What were the four main characters' names in 'Golden Girls'?", options: ["Dorothy, Rose, Blanche, Sophia", "Rachel, Monica, Phoebe, Chandler", "Carrie, Samantha, Charlotte, Miranda", "Lucy, Ethel, Fred, Ricky"], answer: 0},
+            {question: "What is the name of the district in New York famous for musicals?", options: ["SoHo", "Broadway", "Tribeca", "Chelsea"], answer: 1},
+            {question: "What miniseries about WWII was created by Tom Hanks and Steven Spielberg?", options: ["The Pacific", "Band of Brothers", "Generation Kill", "Overlord"], answer: 1},
+            {question: "What is the name of the toy cowboy in 'Toy Story'?", options: ["Buzz Lightyear", "Woody", "Jessie", "Slinky Dog"], answer: 1},
+            {question: "Who was the only actor nominated for an Oscar in the 'Lord of the Rings' trilogy?", options: ["Elijah Wood", "Ian McKellen", "Viggo Mortensen", "Sean Astin"], answer: 1},
+            {question: "What is the name of Mickey Mouse’s girlfriend?", options: ["Daisy Duck", "Minnie Mouse", "Clarabelle Cow", "Pluto"], answer: 1},
+            {question: "What famous play features a character named Romeo?", options: ["Hamlet", "Macbeth", "Romeo and Juliet", "Othello"], answer: 2},
+            {question: "What does S.W.O.R.D. stand for in 'WandaVision'?", options: ["Sentient Weapon Observation Response Division", "Strategic World Operations Response Division", "Space Weapon Observation and Research Division", "Superhuman Weapon Oversight and Response Division"], answer: 0},
+            {question: "What was the first feature-length animated film ever released?", options: ["Cinderella", "Snow White and the Seven Dwarfs", "Pinocchio", "Dumbo"], answer: 1}
+        ],
+        "General Knowledge": [
+            {question: "What is the term for a group of flamingos?", options: ["Flock", "Gaggle", "Flamboyance", "Herd"], answer: 2},
+            {question: "What is the official animal of Scotland?", options: ["Lion", "Unicorn", "Stag", "Eagle"], answer: 1},
+            {question: "What fruit is known as the 'king of fruits' and banned in many places due to its smell?", options: ["Mango", "Durian", "Jackfruit", "Papaya"], answer: 1},
+            {question: "What is the fear of clowns called?", options: ["Arachnophobia", "Coulrophobia", "Acrophobia", "Claustrophobia"], answer: 1},
+            {question: "What do pandas primarily eat?", options: ["Fish", "Meat", "Bamboo", "Grass"], answer: 2},
+            {question: "What does a funambulist walk on?", options: ["A Tight Rope", "A Balance Beam", "A Trampoline", "A Slackline"], answer: 0},
+            {question: "What is the main ingredient in guacamole?", options: ["Tomatillo", "Tomato", "Avocado", "Pepper"], answer: 2},
+            {question: "How many noses does a slug have?", options: ["One", "Two", "Four", "Six"], answer: 2},
+            {question: "What is the longest word in the English language?", options: ["Antidisestablishmentarianism", "Hippopotomonstrosesquippedaliophobia", "Floccinaucinihilipilification", "Supercalifragilisticexpialidocious"], answer: 1},
+            {question: "What country holds the record for the longest dance party (55 hours)?", options: ["Brazil", "Ireland", "India", "Spain"], answer: 1}
+        ]
+    };
+
+    function showMessage(message, showOptions = false) {
+        document.getElementById("message-text").innerText = message;
+        if (showOptions) {
+            document.getElementById("take-winnings-btn").style.display = "inline-block";
+            document.getElementById("continue-trivia-btn").style.display = "inline-block";
+            document.getElementById("ok-btn").style.display = "none";
+        } else {
+            document.getElementById("take-winnings-btn").style.display = "none";
+            document.getElementById("continue-trivia-btn").style.display = "none";
+            document.getElementById("ok-btn").style.display = "inline-block";
+        }
+        document.getElementById("message-modal").style.display = "flex";
+    }
+
+    function closeMessage() {
+        document.getElementById("message-modal").style.display = "none";
+    }
+
+    function startPreGameTrivia() {
+        document.getElementById("welcome-screen").style.display = "none";
+        document.getElementById("pregame-trivia-topic-selection").style.display = "block";
+    }
+
+    function skipToBlackjack() {
+        document.getElementById("welcome-screen").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        firstRoundStarted = true;
+        updateDisplay();
+    }
+
+    function showTableMenu() {
+        if (gameInProgress) {
+            showMessage("Finish the current round before changing tables!");
+            return;
+        }
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("table-menu").style.display = "block";
+        updateTableMenu();
+    }
+
+    function hideTableMenu() {
+        document.getElementById("table-menu").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        updateDisplay();
+    }
+
+    function updateTableMenu() {
+        for (let level = 2; level <= 5; level++) {
+            const button = document.getElementById(`buy-level-${level}`);
+            if (unlockedTables.includes(level)) {
+                button.innerText = "Unlocked";
+                button.disabled = true;
+            } else {
+                button.innerText = "Buy";
+                button.disabled = false;
+            }
+        }
+    }
+
+    function buyTable(level, cost, newMaxBet) {
+        if (bankroll < cost) {
+            showMessage(`You need $${cost} to unlock this table!`);
+            return;
+        }
+        if (unlockedTables.includes(level)) {
+            showMessage(`You already unlocked Table Level ${level}!`);
+            return;
+        }
+        bankroll -= cost;
+        unlockedTables.push(level);
+        currentTableLevel = level;
+        maxBet = newMaxBet;
+        updateDisplay();
+        updateTableMenu();
+        showMessage(`Table Level ${level} unlocked! Max bet is now $${maxBet}.`);
+    }
+
+    function setBet(amount) {
+        const betInput = document.getElementById("bet-amount");
+        const cappedAmount = Math.min(amount, maxBet, bankroll);
+        betInput.value = cappedAmount;
+    }
+
+    function setMaxBet() {
+        const betInput = document.getElementById("bet-amount");
+        const maxPossibleBet = Math.min(maxBet, bankroll);
+        betInput.value = maxPossibleBet;
+    }
+
+    function takeWinnings() {
+        document.getElementById("pregame-trivia").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        document.getElementById("message-modal").style.display = "none";
+        firstRoundStarted = true;
+        showMessage("Starting Blackjack with your bankroll of $" + bankroll + "!");
+        updateDisplay();
+    }
+
+    function continueTrivia() {
+        document.getElementById("message-modal").style.display = "none";
+        showPreGameTrivia();
+    }
+
+    function drawCard() {
+        const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+        const value = values[Math.floor(Math.random() * values.length)];
+        const suit = suits[Math.floor(Math.random() * suits.length)];
+        return { value, suit };
+    }
+
+    function cardValue(card) {
+        if (["J", "Q", "K"].includes(card.value)) return 10;
+        if (card.value === "A") return 11;
+        return parseInt(card.value);
+    }
+
+    function calculateHandTotal(hand) {
+        let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
+        let aces = hand.filter(card => card.value === "A").length;
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+        return total;
+    }
+
+    function formatCard(card) {
+        return `<div class="card ${card.suit === '♥' || card.suit === '♦' ? 'hearts' : 'spades'}">
+            ${card.value}<span class="suit">${card.suit}</span>
+        </div>`;
+    }
+
+    function updateDisplay() {
+        document.getElementById("player-hand").innerHTML = playerHand.map(formatCard).join("");
+        document.getElementById("dealer-hand").innerHTML = gameInProgress ? 
+            formatCard(dealerHand[0]) + '<div class="card">?</div>' : 
+            dealerHand.map(formatCard).join("");
+        document.getElementById("current-bet").innerText = currentBet + (isSplit ? splitBet : 0);
+        document.getElementById("player-total").innerText = calculateHandTotal(playerHand);
+        document.getElementById("dealer-total").innerText = gameInProgress ? 
+            cardValue(dealerHand[0]) : calculateHandTotal(dealerHand);
+        document.getElementById("bankroll").innerText = bankroll;
+        document.getElementById("dealer-bankroll").innerText = dealerBankroll;
+        document.getElementById("table-level").innerText = currentTableLevel;
+        document.getElementById("max-bet").innerText = maxBet;
+        if (isSplit) {
+            document.getElementById("split-hand").style.display = "block";
+            document.getElementById("split-hand-cards").innerHTML = splitHand.map(formatCard).join("");
+            document.getElementById("split-total").innerText = calculateHandTotal(splitHand);
+        }
+    }
+
+    function selectPreGameTopic(topic) {
+        selectedPreGameTopic = topic;
+        document.getElementById("pregame-trivia-topic-selection").style.display = "none";
+        showPreGameTrivia();
+    }
+
+    function selectTriviaTopic(topic) {
+        selectedTriviaTopic = topic;
+        document.getElementById("trivia-topic-selection").style.display = "none";
+        showTrivia();
+    }
+
+    function showPreGameTrivia() {
+        if (preGameTriviaAttempts < 3 && !firstRoundStarted) {
+            const questions = triviaQuestions[selectedPreGameTopic];
+            const availableQuestions = questions.filter(q => !askedQuestions[selectedPreGameTopic].includes(q.question));
+            if (availableQuestions.length === 0) {
+                showMessage("No more questions available in this topic! Starting the game.");
+                document.getElementById("pregame-trivia").style.display = "none";
+                document.getElementById("game-area").style.display = "block";
+                firstRoundStarted = true;
+                updateDisplay();
+                return;
+            }
+            const trivia = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            askedQuestions[selectedPreGameTopic].push(trivia.question);
+            document.getElementById("pregame-trivia-question").innerText = trivia.question;
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`pregame-option-${i}`).innerText = trivia.options[i];
+            }
+            document.getElementById("pregame-trivia").style.display = "block";
+        } else if (!firstRoundStarted) {
+            document.getElementById("pregame-trivia").style.display = "none";
+            document.getElementById("game-area").style.display = "block";
+            firstRoundStarted = true;
+            showMessage("Pre-game trivia complete! Start your first round.");
+            updateDisplay();
+        }
+    }
+
+    function answerPreGameTrivia(choice) {
+        const questions = triviaQuestions[selectedPreGameTopic];
+        const trivia = questions.find(t => t.question === document.getElementById("pregame-trivia-question").innerText);
+        if (choice === trivia.answer) {
+            bankroll += 20;
+            preGameTriviaAttempts++;
+            if (preGameTriviaAttempts < 3) {
+                showMessage(`Correct! Your bankroll is now $${bankroll}.`, true);
+            } else {
+                showMessage(`Correct! Your bankroll is now $${bankroll}. You've answered all 3 questions! Starting Blackjack.`);
+                document.getElementById("pregame-trivia").style.display = "none";
+                document.getElementById("game-area").style.display = "block";
+                firstRoundStarted = true;
+                updateDisplay();
+            }
+        } else {
+            showMessage("Wrong answer! Pre-game trivia ends. Start your game!");
+            document.getElementById("pregame-trivia").style.display = "none";
+            document.getElementById("game-area").style.display = "block";
+            firstRoundStarted = true;
+            updateDisplay();
+        }
+    }
+
+    function startRound() {
+        if (gameInProgress) return;
+        let betInput = parseInt(document.getElementById("bet-amount").value);
+        if (isNaN(betInput) || betInput < 1 || betInput > bankroll || betInput > maxBet) {
+            showMessage(`Please enter a valid bet amount! (Min: $1, Max: $${maxBet}, Bankroll: $${bankroll})`);
+            return;
+        }
+        currentBet = betInput;
+        bankroll -= currentBet;
+        playerHand = [drawCard(), drawCard()];
+        dealerHand = [drawCard(), drawCard()];
+        gameInProgress = true;
+        isSplit = false;
+        splitHand = [];
+        
+        const playerTotal = calculateHandTotal(playerHand);
+        canDouble = playerHand.length === 2 && (playerTotal === 9 || playerTotal === 10 || playerTotal === 11);
+        canSplit = playerHand.length === 2 && cardValue(playerHand[0]) === cardValue(playerHand[1]);
+        
+        toggleButtons(true);
+        updateDisplay();
+        if (playerTotal === 21) {
+            endRound(true);
+        }
+    }
+
+    function hit(split = false) {
+        if (!gameInProgress) return;
+        const targetHand = split ? splitHand : playerHand;
+        targetHand.push(drawCard());
+        canDouble = false;
+        canSplit = false;
+        updateDisplay();
+        if (calculateHandTotal(targetHand) > 21) {
+            if (isSplit && !split) hit(true);
+            else endRound();
+        }
+    }
+
+    function stand(split = false) {
+        if (!gameInProgress) return;
+        if (isSplit && !split) {
+            hit(true);
+        } else {
+            dealerPlay();
+            endRound();
+        }
+    }
+
+    function dealerPlay() {
+        while (calculateHandTotal(dealerHand) < 17) {
+            dealerHand.push(drawCard());
+        }
+    }
+
+    function doubleDown(split = false) {
+        if (!gameInProgress || !canDouble || bankroll < currentBet) return;
+        bankroll -= currentBet;
+        if (split) splitBet *= 2;
+        else currentBet *= 2;
+        const targetHand = split ? splitHand : playerHand;
+        targetHand.push(drawCard());
+        canDouble = false;
+        updateDisplay();
+        if (calculateHandTotal(targetHand) <= 21 && (!isSplit || split)) {
+            dealerPlay();
+            endRound();
+        }
+    }
+
+    function split() {
+        if (!gameInProgress || !canSplit || bankroll < currentBet) return;
+        splitHand = [playerHand.pop()];
+        playerHand.push(drawCard());
+        splitHand.push(drawCard());
+        bankroll -= currentBet;
+        splitBet = currentBet;
+        isSplit = true;
+        canSplit = false;
+        const playerTotal = calculateHandTotal(playerHand);
+        canDouble = (playerTotal === 9 || playerTotal === 10 || playerTotal === 11);
+        updateDisplay();
+        toggleButtons(true);
+    }
+
+    function endRound(blackjack = false) {
+        gameInProgress = false;
+        const playerTotal = calculateHandTotal(playerHand);
+        const splitTotal = calculateHandTotal(splitHand);
+        const dealerTotal = calculateHandTotal(dealerHand);
+        let message = "";
+
+        if (blackjack) {
+            bankroll += currentBet * 2.5;
+            message = "Blackjack! You win!";
+        } else {
+            if (playerTotal > 21) {
+                dealerBankroll += currentBet;
+                message += "Main hand busts! ";
+            } else if (dealerTotal > 21) {
+                bankroll += currentBet * 2;
+                message += "Dealer busts! Main hand wins! ";
+            } else if (playerTotal > dealerTotal) {
+                bankroll += currentBet * 2;
+                message += "Main hand wins! ";
+            } else if (playerTotal < dealerTotal) {
+                dealerBankroll += currentBet;
+                message += "Dealer wins main hand! ";
+            } else {
+                bankroll += currentBet;
+                message += "Main hand push! ";
+            }
+
+            if (isSplit) {
+                if (splitTotal > 21) {
+                    dealerBankroll += splitBet;
+                    message += "Split hand busts!";
+                } else if (dealerTotal > 21) {
+                    bankroll += splitBet * 2;
+                    message += "Dealer busts! Split hand wins!";
+                } else if (splitTotal > dealerTotal) {
+                    bankroll += splitBet * 2;
+                    message += "Split hand wins!";
+                } else if (splitTotal < dealerTotal) {
+                    dealerBankroll += splitBet;
+                    message += "Dealer wins split hand!";
+                } else {
+                    bankroll += splitBet;
+                    message += "Split hand push!";
+                }
+            }
+        }
+
+        updateDisplay();
+        toggleButtons(false);
+        showMessage(message);
+
+        currentBet = 0;
+        splitBet = 0;
+        playerHand = [];
+        splitHand = [];
+        dealerHand = [];
+        isSplit = false;
+        canDouble = false;
+        canSplit = false;
+        document.getElementById("split-hand").style.display = "none";
+        updateDisplay();
+
+        if (bankroll <= 0) {
+            showMessage("You're out of money! Answer a trivia question to get back in the game!");
+            document.getElementById("trivia-topic-selection").style.display = "block";
+        }
+    }
+
+    function toggleButtons(active) {
+        document.getElementById("start-round-btn").disabled = active;
+        document.getElementById("hit-btn").disabled = !active;
+        document.getElementById("stand-btn").disabled = !active;
+        document.getElementById("double-btn").disabled = !active || !canDouble;
+        document.getElementById("split-btn").disabled = !active || !canSplit;
+    }
+
+    function showTrivia() {
+        const questions = triviaQuestions[selectedTriviaTopic];
+        const availableQuestions = questions.filter(q => !askedQuestions[selectedTriviaTopic].includes(q.question));
+        if (availableQuestions.length === 0) {
+            showMessage("No more questions available in this topic! Game Over! Starting fresh with $100.");
+            bankroll = 100;
+            dealerBankroll = 100;
+            document.getElementById("trivia-area").style.display = "none";
+            document.getElementById("start-round-btn").disabled = false;
+            updateDisplay();
+            return;
+        }
+        currentTrivia = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        askedQuestions[selectedTriviaTopic].push(currentTrivia.question);
+        document.getElementById("trivia-question").innerText = currentTrivia.question;
+        for (let i = 0; i < 4; i++) {
+            document.getElementById(`option-${i}`).innerText = currentTrivia.options[i];
+        }
+        document.getElementById("trivia-area").style.display = "block";
+        document.getElementById("start-round-btn").disabled = true;
+    }
+
+    function answerTrivia(choice) {
+        const triviaArea = document.getElementById("trivia-area");
+        if (choice === currentTrivia.answer) {
+            bankroll += 150; // Changed from $20 to $150 for redemption trivia
+            showMessage("Correct! You've won $150 to continue playing!");
+        } else {
+            bankroll = 100;
+            dealerBankroll = 100;
+            showMessage("Wrong answer! Game Over! Starting fresh with $100.");
+        }
+        triviaArea.style.display = "none";
+        document.getElementById("start-round-btn").disabled = false;
+        updateDisplay();
+    }
+
+    window.onload = function() {
+        document.getElementById("welcome-screen").style.display = "block";
+    };
+
+    updateDisplay();
+</script>
