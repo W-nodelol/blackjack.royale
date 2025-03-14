@@ -4,156 +4,229 @@
     <title>Blackjack Royale</title>
     <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkzhhvOa9CaBSN7Es4m5fnLGTT0PB0VbXM-g&s">
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #006400, #4B0082, #000000);
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        h1 {
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-size: 2.5em;
-        }
-        #game-area {
-            background: rgba(0, 0, 0, 0.85);
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: none;
-        }
-        .hand-container {
-            margin: 15px 0;
-            min-height: 100px;
-        }
-        .card {
-            display: inline-block;
-            width: 70px;
-            height: 100px;
-            margin: 5px;
-            padding: 10px;
-            background: #fff;
-            color: black;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            font-size: 1.2em;
-            position: relative;
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .suit {
-            font-size: 1.5em;
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-        }
-        .hearts, .diamonds { color: #e74c3c; }
-        .spades, .clubs { color: #2c3e50; }
-        button {
-            padding: 12px 20px;
-            margin: 5px;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            cursor: pointer;
-            font-size: 1em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-        button:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255,107,107,0.5);
-        }
-        button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        #trivia-area {
-            background: rgba(46, 204, 113, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 600px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            text-align: center;
-            display: none;
-        }
-        .money {
-            color: #ffd700;
-            font-weight: bold;
-        }
-        #welcome-screen, #pregame-trivia, #trivia-topic-selection, #pregame-trivia-topic-selection, #table-menu {
-            background: rgba(44, 62, 80, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 600px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        #welcome-screen h2, #pregame-trivia h2, #trivia-topic-selection h2, #pregame-trivia-topic-selection h2, #table-menu h2 {
-            margin-top: 0;
-        }
-        .topic-buttons button, .preset-buttons button {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            margin: 5px;
-        }
-        .preset-buttons button:hover, .topic-buttons button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
-        }
-        #message-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        #message-modal-content {
-            background: #2c3e50;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-        }
-        #message-modal-content p {
-            margin: 0 0 20px 0;
-            font-size: 1.2em;
-        }
-        #message-modal-content button {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            margin: 5px;
-        }
-        #message-modal-content button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
-        }
-        #table-menu button {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-        }
-        #table-menu button:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-        #table-menu button:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
-        }
-    </style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #006400, #4B0082, #000000);
+        color: #fff;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    h1 {
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-size: 2.5em;
+    }
+    #game-area {
+        background: rgba(0, 0, 0, 0.85);
+        padding: 25px;
+        border-radius: 15px;
+        max-width: 800px;
+        margin: 0 auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        display: none;
+    }
+    .hand-container {
+        margin: 15px 0;
+        min-height: 100px;
+    }
+    .card {
+        display: inline-block;
+        width: 70px;
+        height: 100px;
+        margin: 5px;
+        padding: 10px;
+        background: #fff;
+        color: black;
+        border-radius: 8px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        font-size: 1.2em;
+        position: relative;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .suit {
+        font-size: 1.5em;
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+    }
+    .hearts, .diamonds { color: #e74c3c; }
+    .spades, .clubs { color: #2c3e50; }
+    button {
+        padding: 12px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 25px;
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+    }
+    button:hover:not(:disabled) {
+        transform: scale(1.05);
+    }
+    button:disabled {
+        background: #666;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    #trivia-area {
+        background: rgba(46, 204, 113, 0.9);
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        text-align: center;
+        display: none;
+    }
+    .money {
+        color: #32CD32; /* Changed from yellow to green */
+        font-weight: bold;
+    }
+    #welcome-screen, #pregame-trivia, #trivia-topic-selection, #pregame-trivia-topic-selection, #table-menu {
+        background: rgba(44, 62, 80, 0.9);
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    #welcome-screen h2, #pregame-trivia h2, #trivia-topic-selection h2, #pregame-trivia-topic-selection h2, #table-menu h2 {
+        margin-top: 0;
+    }
+    /* Welcome Screen Buttons */
+    #welcome-screen button:nth-child(3) { /* Play Trivia for Bonus */
+        background: linear-gradient(45deg, #9B59B6, #8E44AD);
+    }
+    #welcome-screen button:nth-child(3):hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+    }
+    #welcome-screen button:nth-child(4) { /* Skip to Blackjack */
+        background: linear-gradient(45deg, #2ECC71, #27AE60);
+    }
+    #welcome-screen button:nth-child(4):hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    }
+    /* Game Action Buttons */
+    #start-round-btn { /* Deal */
+        background: linear-gradient(45deg, #2ECC71, #27AE60);
+    }
+    #start-round-btn:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    }
+    #hit-btn { /* Hit */
+        background: linear-gradient(45deg, #E74C3C, #C0392B);
+    }
+    #hit-btn:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+    }
+    #stand-btn { /* Stand */
+        background: linear-gradient(45deg, #3498DB, #2980B9);
+    }
+    #stand-btn:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+    }
+    #double-btn { /* Double */
+        background: linear-gradient(45deg, #F1C40F, #D4AC0D);
+    }
+    #double-btn:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+    }
+    #split-btn { /* Split */
+        background: linear-gradient(45deg, #9B59B6, #8E44AD);
+    }
+    #split-btn:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+    }
+    /* Change Table Button */
+    #game-area button:last-child { /* Change Table */
+        background: linear-gradient(45deg, #00CED1, #00B7EB);
+    }
+    #game-area button:last-child:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(0, 206, 209, 0.5);
+    }
+    /* Preset Bet Buttons */
+    .preset-buttons button {
+        background: linear-gradient(45deg, #BDC3C7, #95A5A6);
+        margin: 5px;
+    }
+    .preset-buttons button:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(189, 195, 199, 0.5);
+    }
+    /* Trivia Topic Selection Buttons */
+    .topic-buttons button {
+        background: linear-gradient(45deg, #1ABC9C, #16A085);
+        margin: 5px;
+    }
+    .topic-buttons button:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(26, 188, 156, 0.5);
+    }
+    /* Pre-Game Trivia Answer Buttons */
+    #pregame-option-0, #pregame-option-1, #pregame-option-2, #pregame-option-3,
+    #option-0, #option-1, #option-2, #option-3 {
+        background: linear-gradient(45deg, #E67E22, #D35400);
+    }
+    #pregame-option-0:hover:not(:disabled), #pregame-option-1:hover:not(:disabled),
+    #pregame-option-2:hover:not(:disabled), #pregame-option-3:hover:not(:disabled),
+    #option-0:hover:not(:disabled), #option-1:hover:not(:disabled),
+    #option-2:hover:not(:disabled), #option-3:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(230, 126, 34, 0.5);
+    }
+    #message-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    #message-modal-content {
+        background: #2c3e50;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+    #message-modal-content p {
+        margin: 0 0 20px 0;
+        font-size: 1.2em;
+    }
+    #message-modal-content button {
+        background: linear-gradient(45deg, #3498DB, #2980B9);
+        margin: 5px;
+    }
+    #message-modal-content button:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+    }
+    #table-menu button:not(:last-child) { /* Buy buttons */
+        background: linear-gradient(45deg, #2ECC71, #27AE60);
+    }
+    #table-menu button:not(:last-child):hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+    }
+    #table-menu button:last-child { /* Back to Game */
+        background: linear-gradient(45deg, #7F8C8D, #566573);
+    }
+    #table-menu button:last-child:hover:not(:disabled) {
+        box-shadow: 0 0 15px rgba(127, 140, 141, 0.5);
+    }
+    #table-menu button:disabled {
+        background: #666;
+        cursor: not-allowed;
+    }
+</style>
 </head>
 <body>
     <h1>Blackjack Royale</h1>
